@@ -3,6 +3,9 @@ Copyright (C) 2018 NVIDIA Corporation.  All rights reserved.
 Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 """
 import torch.utils.data as data
+# from torch import from_numpy
+import numpy as np
+# import cv2
 import os.path
 
 def default_loader(path):
@@ -10,8 +13,9 @@ def default_loader(path):
 
 # Added by me to load 16 bit IR images
 def ir_loader(path):
-    ir_image = Image.open(path).convert('I').point(lambda i: i * (1.0 / 256)).convert('L')
-    return Image.merge("RGB", (ir_image, ir_image, ir_image))
+    ir_array = np.array(Image.open(path))
+    ir_array_rgb = np.stack((ir_array,) * 3, axis=-1).astype(np.uint8)
+    return Image.fromarray(ir_array_rgb, mode='RGB')
 
 
 def default_flist_reader(flist):
