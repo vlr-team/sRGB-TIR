@@ -1,3 +1,9 @@
+## TODO
+- [x] Try training (done up to 6000 epochs)
+- [ ] Finish training
+- [ ] Run metrics
+
+
 # [Edge-guided Multi-domain RGB-to-TIR image Translation for Training Vision Tasks with Challenging Labels](https://arxiv.org/pdf/2301.12689.pdf)
 Accepted Proceedings to ICRA 2023 
 
