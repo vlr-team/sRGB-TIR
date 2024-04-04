@@ -5,7 +5,8 @@ Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses
 import torch.utils.data as data
 # from torch import from_numpy
 import numpy as np
-# import cv2
+from skimage import exposure, img_as_ubyte
+import cv2
 import os.path
 
 def default_loader(path):
@@ -13,9 +14,10 @@ def default_loader(path):
 
 # Added by me to load 16 bit IR images
 def ir_loader(path):
-    ir_array = np.array(Image.open(path))
-    ir_array_rgb = np.stack((ir_array,) * 3, axis=-1).astype(np.uint8)
-    return Image.fromarray(ir_array_rgb, mode='RGB')
+    image = cv2.imread(path, -1)
+    image = img_as_ubyte(exposure.rescale_intensity(image))
+    image = cv2.equalizeHist(image)
+    return Image.fromarray(image).convert('RGB')
 
 
 def default_flist_reader(flist):
@@ -126,10 +128,21 @@ class ImageFolder(data.Dataset):
 
     def __getitem__(self, index):
         path = self.imgs[index]
-        img = self.loader(path)
+        try:
+            img = self.loader(path)
+            if img is None or img.shape[0] == 0:
+                return None
+        except Exception as e:
+            print(f"Failed to load image {path}: {e}")
+            return None
         if self.transform is not None:
             # Check if the images is a float tensor not torch.int.32
             img = self.transform(img)
+            # if (img.shape[0] != 3 or 
+            #     not (img.shape[1] == 400 or img.shape[1] == 640) or 
+            #     not (img.shape[2] == 400 or img.shape[2] == 640)):
+            #     print("Image shape: ", img.shape)
+            #     return None
         if self.return_paths:
             return img, path
         else:
