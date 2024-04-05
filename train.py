@@ -16,6 +16,8 @@ import os
 import sys
 import tensorboardX
 import shutil
+import time
+
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('--config', type=str, default='configs/edges2handbags_folder.yaml', help='Path to the config file.')
@@ -58,9 +60,10 @@ shutil.copy(opts.config, os.path.join(output_directory, 'config.yaml')) # copy c
 
 # Start training
 iterations = trainer.resume(checkpoint_directory, hyperparameters=config) if opts.resume else 0
+total_time = 0
+start_time = time.time()
 while True:
     for it, (images_a, images_b) in enumerate(zip(train_loader_a, train_loader_b)):
-
         images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
 
         with Timer("Elapsed time in update: %f"):
@@ -96,3 +99,5 @@ while True:
         iterations += 1
         if iterations >= max_iter:
             sys.exit('Finish training')
+        total_time = time.time() - start_time
+        print("Total time: %02d:%02d:%02d" % (total_time // 3600, total_time % 3600 // 60, total_time % 60))

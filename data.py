@@ -10,13 +10,29 @@ import cv2
 import os.path
 
 def default_loader(path):
-    return Image.open(path).convert('RGB')
+    try:
+        image = Image.open(path)
+        if image is None:
+            print(f"Failed to load image {path}")
+            return None
+    except Exception as e:
+        print(f"Failed to load image {path}: {e}")
+        return None
+    return image.convert('RGB')
 
 # Added by me to load 16 bit IR images
 def ir_loader(path):
-    image = cv2.imread(path, -1)
+    try:
+        image = cv2.imread(path, -1)
+        if image is None:
+            print(f"Failed to load image {path}")
+            return None
+    except Exception as e:
+        print(f"Failed to load image {path}: {e}")
+        return None
     image = img_as_ubyte(exposure.rescale_intensity(image))
     image = cv2.equalizeHist(image)
+    image = cv2.merge((image, image, image))
     return Image.fromarray(image).convert('RGB')
 
 
@@ -128,21 +144,12 @@ class ImageFolder(data.Dataset):
 
     def __getitem__(self, index):
         path = self.imgs[index]
-        try:
-            img = self.loader(path)
-            if img is None or img.shape[0] == 0:
-                return None
-        except Exception as e:
-            print(f"Failed to load image {path}: {e}")
-            return None
+
+        img = self.loader(path)
+        
         if self.transform is not None:
-            # Check if the images is a float tensor not torch.int.32
             img = self.transform(img)
-            # if (img.shape[0] != 3 or 
-            #     not (img.shape[1] == 400 or img.shape[1] == 640) or 
-            #     not (img.shape[2] == 400 or img.shape[2] == 640)):
-            #     print("Image shape: ", img.shape)
-            #     return None
+
         if self.return_paths:
             return img, path
         else:
