@@ -60,7 +60,7 @@ class ImageFilelist(data.Dataset):
     def __getitem__(self, index):
         impath = self.imlist[index]
         img = self.loader(os.path.join(self.root, impath))
-        if self.transform is not None:
+        if self.transform is not None and img is not None:
             img = self.transform(img)
 
         return img
@@ -83,8 +83,11 @@ class ImageLabelFilelist(data.Dataset):
     def __getitem__(self, index):
         impath, label = self.imgs[index]
         img = self.loader(os.path.join(self.root, impath))
-        if self.transform is not None:
+        if self.transform is not None and img is not None:
             img = self.transform(img)
+        if img is None:
+            print(f"Failed to load image {impath}")
+            return None, None
         return img, label
 
     def __len__(self):
@@ -147,10 +150,10 @@ class ImageFolder(data.Dataset):
 
         img = self.loader(path)
         
-        if self.transform is not None:
+        if self.transform is not None and img is not None:
             img = self.transform(img)
 
-        if self.return_paths:
+        if self.return_paths and img is not None:
             return img, path
         else:
             return img
