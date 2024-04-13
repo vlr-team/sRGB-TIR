@@ -57,6 +57,9 @@ train_display_images_b = torch.stack([train_loader_b.dataset[i] for i in range(d
 test_display_images_a = torch.stack([test_loader_a.dataset[i] for i in range(display_size)]).cuda()
 test_display_images_b = torch.stack([test_loader_b.dataset[i] for i in range(display_size)]).cuda()
 
+print("Training images A: %d, B: %d. Testing images A: %d, B: %d" % (
+    len(train_loader_a.dataset), len(train_loader_b.dataset), len(test_loader_a.dataset), len(test_loader_b.dataset)))
+
 # Setup logger and output folders
 model_name = os.path.splitext(os.path.basename(opts.config))[0]
 train_writer = tensorboardX.SummaryWriter(os.path.join(opts.output_path + "/logs", model_name))
@@ -69,7 +72,7 @@ iterations = trainer.resume(checkpoint_directory, hyperparameters=config) if opt
 total_time = 0
 start_time = time.time()
 while True:
-    assert len(train_loader_a) == len(train_loader_b), "Data loaders must have the same number of batches"
+    # assert len(train_loader_a) == len(train_loader_b), "Data loaders must have the same number of batches"
     for it, (images_a, images_b) in enumerate(zip_longest(train_loader_a, train_loader_b, fillvalue=None)):
         if images_a is None or images_b is None:
             continue

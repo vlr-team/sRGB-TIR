@@ -53,13 +53,13 @@ def get_all_data_loaders(conf):
     width = conf['crop_image_width']
 
     if 'data_root' in conf:
-        train_loader_a = get_data_loader_folder(os.path.join(conf['data_root'], 'trainA'), batch_size, True,
+        train_loader_a = get_data_loader_folder(os.path.join(conf['data_root'], 'images_rgb_train', 'data'), batch_size, True,
                                               new_size_a, height, width, num_workers, True)
-        test_loader_a = get_data_loader_folder(os.path.join(conf['data_root'], 'testA'), batch_size, False,
+        test_loader_a = get_data_loader_folder(os.path.join(conf['data_root'], 'images_rgb_val', 'data'), batch_size, False,
                                              new_size_a, new_size_a, new_size_a, num_workers, True)
-        train_loader_b = get_data_loader_folder(os.path.join(conf['data_root'], 'trainB'), batch_size, True,
+        train_loader_b = get_data_loader_folder(os.path.join(conf['data_root'], 'images_thermal_train', 'data'), batch_size, True,
                                               new_size_b, height, width, num_workers, True)
-        test_loader_b = get_data_loader_folder(os.path.join(conf['data_root'], 'testB'), batch_size, False,
+        test_loader_b = get_data_loader_folder(os.path.join(conf['data_root'], 'images_thermal_val', 'data'), batch_size, False,
                                              new_size_b, new_size_b, new_size_b, num_workers, True)
     else:
         train_loader_a = get_data_loader_list(conf['data_folder_train_a'], conf['data_list_train_a'], batch_size, True,
@@ -98,9 +98,9 @@ def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
 
     # Modified by me to read 16-bit IR images
     # check if the input_folder path contains 'trainA' or 'testA' or 'trainB' or 'testB'
-    if 'trainA' in input_folder or 'testA' in input_folder:
+    if 'rgb' in input_folder:
         dataset = ImageFolder(input_folder, transform=transform)
-    elif 'trainB' in input_folder or 'testB' in input_folder:
+    elif 'thermal' in input_folder:
         dataset = ImageFolder(input_folder, transform=transform, loader=ir_loader)
     else:
         raise ValueError("input_folder path must contain 'trainA' or 'testA' or 'trainB' or 'testB'")

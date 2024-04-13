@@ -152,6 +152,9 @@ class ImageFolder(data.Dataset):
         if isinstance(img, type(None)):
             return None
         if self.transform is not None and img is not None:
+            # print("Image shape: ", img.size)
+            # if self.loader == ir_loader:
+            #     print("IR image")
             img = self.transform(img)
 
         if self.return_paths and img is not None:
