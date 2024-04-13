@@ -149,7 +149,8 @@ class ImageFolder(data.Dataset):
         path = self.imgs[index]
 
         img = self.loader(path)
-        
+        if isinstance(img, type(None)):
+            return None
         if self.transform is not None and img is not None:
             img = self.transform(img)
 

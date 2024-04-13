@@ -12,6 +12,12 @@ try:
     from itertools import izip as zip
 except ImportError: # will be 3.x series
     pass
+
+try:
+    from itertools import izip_longest as zip_longest  # Python 2
+except ImportError:
+    from itertools import zip_longest
+
 import os
 import sys
 import tensorboardX
@@ -63,7 +69,11 @@ iterations = trainer.resume(checkpoint_directory, hyperparameters=config) if opt
 total_time = 0
 start_time = time.time()
 while True:
-    for it, (images_a, images_b) in enumerate(zip(train_loader_a, train_loader_b)):
+    assert len(train_loader_a) == len(train_loader_b), "Data loaders must have the same number of batches"
+    for it, (images_a, images_b) in enumerate(zip_longest(train_loader_a, train_loader_b, fillvalue=None)):
+        if images_a is None or images_b is None:
+            continue
+
         images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
 
         with Timer("Elapsed time in update: %f"):

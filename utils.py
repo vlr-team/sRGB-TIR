@@ -110,6 +110,8 @@ def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
 
 def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
+    if not batch:
+        raise ValueError("All images in batch are None.")
     return torch.utils.data.dataloader.default_collate(batch)
 
 def get_config(config):
