@@ -62,6 +62,8 @@ if opts.compute_IS or opts.compute_IS:
 image_names = ImageFolder(opts.input_folder, transform=None, return_paths=True)
 data_loader = get_data_loader_folder(opts.input_folder, 1, False, new_size=None, crop=False, height=400, width=640)
 
+print("Total number of images: {}".format(len(image_names)))
+
 config['vgg_model_path'] = opts.output_path
 if opts.trainer == 'MUNIT':
     style_dim = config['gen']['style_dim']
