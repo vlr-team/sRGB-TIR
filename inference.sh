@@ -19,8 +19,9 @@
 source $PROJECT/miniconda3/etc/profile.d/conda.sh
 conda activate vlr
 
-python '/ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/inference_batch.py' --config /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/configs/tir2rgb_folder.yaml \
---input_folder /ocean/projects/cis220039p/ayanovic/datasets/FLIR/images_rgb_val/data \
+python '/ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/inference_batch.py' \
+--config /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/configs/tir2rgb_folder.yaml \
+--input_folder /ocean/projects/cis220039p/shared/tartandrive/2023_traj/v1/figure_8_to_turnpike_2023-09-12-12-22-45/image_left_color/ \
 --output_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/inference_images \
 --checkpoint /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/checkpoints/gen_00175000.pt \
 --output_path /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/inference_outputs \

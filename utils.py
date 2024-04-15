@@ -102,6 +102,8 @@ def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
         dataset = ImageFolder(input_folder, transform=transform)
     elif 'thermal' in input_folder:
         dataset = ImageFolder(input_folder, transform=transform, loader=ir_loader)
+    elif 'left' in input_folder:
+        dataset = ImageFolder(input_folder, transform=transform)
     else:
         raise ValueError("input_folder path must contain 'trainA' or 'testA' or 'trainB' or 'testB'")
 
