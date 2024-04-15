@@ -20,8 +20,8 @@ source $PROJECT/miniconda3/etc/profile.d/conda.sh
 conda activate vlr
 
 python '/ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/inference_batch.py' --config /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/configs/tir2rgb_folder.yaml \
---input_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/data/testA \
+--input_folder /ocean/projects/cis220039p/ayanovic/datasets/FLIR/images_rgb_val/data \
 --output_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/inference_images \
---checkpoint /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/checkpoints/gen_00110000.pt \
+--checkpoint /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/checkpoints/gen_00175000.pt \
 --output_path /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs/tir2rgb_folder/inference_outputs \
 --a2b 1 --seed 1 --num_style 1
