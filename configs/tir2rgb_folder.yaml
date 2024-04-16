@@ -51,9 +51,9 @@ num_workers: 5                              # number of data loading threads
 # new_size_a: 640
 # new_size_b: 512  # 400
 # number of data loading threads
-new_size: 256                               # first resize the shortest image side to this size
+new_size: 256                              # first resize the shortest image side to this size
 crop_image_height: 256 # 400                     # random crop image of this height
 crop_image_width: 256 # 640                      # random crop image of this width
 #data_root: ./datasets/tir2rgb/     # dataset folder location
-data_root: /ocean/projects/cis220039p/ayanovic/datasets/FLIR
+data_root: /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/data
 vgg_model_path: /home/hri/PycharmProjects/Thermal_optical_flow/MUNIT #not going to work, model will be downloaded

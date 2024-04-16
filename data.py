@@ -8,30 +8,36 @@ import numpy as np
 from skimage import exposure, img_as_ubyte
 import cv2
 import os.path
+from normalizer import normalize, freibeg_crop_ir, freibeg_crop_rgb
 
 def default_loader(path):
     try:
-        image = Image.open(path)
+        # print("RGB")
+        image = cv2.imread(path, cv2.IMREAD_COLOR)
         if image is None:
             print(f"Failed to load image {path}")
             return None
     except Exception as e:
         print(f"Failed to load image {path}: {e}")
         return None
-    return image.convert('RGB')
+    image = freibeg_crop_rgb(image)
+    # print(f"Image shape new: {image.shape}")
+    return Image.fromarray(image)
 
 # Added by me to load 16 bit IR images
 def ir_loader(path):
     try:
-        image = cv2.imread(path, -1)
+        # print("IR")
+        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
         if image is None:
             print(f"Failed to load image {path}")
             return None
     except Exception as e:
         print(f"Failed to load image {path}: {e}")
         return None
-    image = img_as_ubyte(exposure.rescale_intensity(image))
-    image = cv2.equalizeHist(image)
+    # image = img_as_ubyte(exposure.rescale_intensity(image))
+    # image = cv2.equalizeHist(image)
+    image = normalize(freibeg_crop_ir(image))
     image = cv2.merge((image, image, image))
     return Image.fromarray(image).convert('RGB')
 
@@ -47,7 +53,6 @@ def default_flist_reader(flist):
             imlist.append(impath)
 
     return imlist
-
 
 class ImageFilelist(data.Dataset):
     def __init__(self, root, flist, transform=None,
@@ -151,6 +156,7 @@ class ImageFolder(data.Dataset):
         img = self.loader(path)
         if isinstance(img, type(None)):
             return None
+        # print(f"Image shape: {img.size}")    
         if self.transform is not None and img is not None:
             # print("Image shape: ", img.size)
             # if self.loader == ir_loader:
