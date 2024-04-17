@@ -76,16 +76,20 @@ while True:
     for it, (images_a, images_b) in enumerate(zip_longest(train_loader_a, train_loader_b, fillvalue=None)):
         if images_a is None or images_b is None:
             print("Skiped iteration")
-            max_iter += 1
             continue
 
-        images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
+        try:
+            images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
 
-        with Timer("Elapsed time in update: %f"):
-            # Main training code
-            trainer.dis_update(images_a, images_b, config)
-            trainer.gen_update(images_a, images_b, config)
-            torch.cuda.synchronize()
+            with Timer("Elapsed time in update: %f"):
+                # Main training code
+                trainer.dis_update(images_a, images_b, config)
+                trainer.gen_update(images_a, images_b, config)
+                torch.cuda.synchronize()
+
+        except Exception as e:
+            print(e)
+            continue
 
         # Dump training stats in log file
         if (iterations + 1) % config['log_iter'] == 0:
