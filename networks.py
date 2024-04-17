@@ -88,7 +88,7 @@ class MsImageDis(nn.Module):
 
 class AdaINGen(nn.Module):
     # AdaIN auto-encoder architecture
-    def __init__(self, input_dim, params):
+    def __init__(self, input_dim, params, segmentation=False):
         super(AdaINGen, self).__init__()
         dim = params['dim']
         style_dim = params['style_dim']
@@ -102,7 +102,7 @@ class AdaINGen(nn.Module):
         self.enc_style = StyleEncoder(4, input_dim, dim, style_dim, norm='none', activ=activ, pad_type=pad_type)
 
         # content encoder
-        self.enc_content = ContentEncoder(n_downsample, n_res, input_dim, dim, 'in', activ, pad_type=pad_type)
+        self.enc_content = ContentEncoder(n_downsample, n_res, input_dim, dim, 'in', activ, pad_type=pad_type, segmentation=segmentation)
         self.dec = Decoder(n_downsample, n_res, self.enc_content.output_dim, input_dim, res_norm='adain', activ=activ, pad_type=pad_type)
 
         # MLP to generate AdaIN parameters
@@ -204,8 +204,19 @@ class StyleEncoder(nn.Module):
         return self.model(x)
 
 class ContentEncoder(nn.Module):
-    def __init__(self, n_downsample, n_res, input_dim, dim, norm, activ, pad_type):
+    def __init__(self, n_downsample, n_res, input_dim, dim, norm, activ, pad_type, segmentation=False):
         super(ContentEncoder, self).__init__()
+        
+        if segmentation:
+            from DeepLabV3s import network
+            self.segmentation = network.modeling.__dict__['deeplabv3plus_resnet101'](num_classes=19,output_stride=8)        
+            self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar', 'cpu')['model_state'])
+            self.segmentation.eval()
+            self.segmentation.cuda()
+            input_dim += 19
+        else:
+            self.segmentation = None
+
         self.model = []
         self.model += [Conv2dBlock(input_dim, dim, 7, 1, 3, norm=norm, activation=activ, pad_type=pad_type)]
         # downsampling blocks
@@ -217,7 +228,19 @@ class ContentEncoder(nn.Module):
         self.model = nn.Sequential(*self.model)
         self.output_dim = dim
 
+    @torch.no_grad()
+    def conditional_segmentation(self, x):
+        if self.segmentation is not None:
+            self.segmentation.eval()
+            segmentation_mask = self.segmentation(x)
+            x = torch.cat([x, segmentation_mask], dim=1)
+            return x
+        else:
+            return None
+
     def forward(self, x):
+        if self.segmentation:
+            x = self.conditional_segmentation(x)
         return self.model(x)
 
 class Decoder(nn.Module):

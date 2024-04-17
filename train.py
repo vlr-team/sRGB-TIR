@@ -31,6 +31,7 @@ parser.add_argument('--config', type=str, default='configs/tir2rgb_folder.yaml',
 parser.add_argument('--output_path', type=str, default='.', help="outputs path")
 parser.add_argument("--resume", action="store_true")
 parser.add_argument('--trainer', type=str, default='MUNIT', help="MUNIT|UNIT")
+parser.add_argument('--segmentation', type=bool, default=False, help="True|False")
 opts = parser.parse_args()
 
 torch.cuda.empty_cache()
@@ -44,7 +45,7 @@ config['vgg_model_path'] = opts.output_path
 
 # Setup model and data loader
 if opts.trainer == 'MUNIT':
-    trainer = MUNIT_Trainer(config)
+    trainer = MUNIT_Trainer(config, segmentation=opts.segmentation)
 elif opts.trainer == 'UNIT':
     trainer = UNIT_Trainer(config)
 else:

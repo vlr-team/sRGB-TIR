@@ -10,12 +10,12 @@ import torch.nn as nn
 import os
 from LoG_loss import LogLoss, LogEachBlock
 class MUNIT_Trainer(nn.Module):
-    def __init__(self, hyperparameters):
+    def __init__(self, hyperparameters, segmentation=False):
         super(MUNIT_Trainer, self).__init__()
         lr = hyperparameters['lr']
         # Initiate the networks
-        self.gen_a = AdaINGen(hyperparameters['input_dim_a'], hyperparameters['gen'])  # auto-encoder for domain a
-        self.gen_b = AdaINGen(hyperparameters['input_dim_b'], hyperparameters['gen'])  # auto-encoder for domain b
+        self.gen_a = AdaINGen(hyperparameters['input_dim_a'], hyperparameters['gen'], segmentation=segmentation)  # auto-encoder for domain a
+        self.gen_b = AdaINGen(hyperparameters['input_dim_b'], hyperparameters['gen'], segmentation=segmentation)  # auto-encoder for domain b
         self.dis_a = MsImageDis(hyperparameters['input_dim_a'], hyperparameters['dis'])  # discriminator for domain a
         self.dis_b = MsImageDis(hyperparameters['input_dim_b'], hyperparameters['dis'])  # discriminator for domain b
         self.instancenorm = nn.InstanceNorm2d(512, affine=False)
