@@ -21,6 +21,7 @@ def default_loader(path):
         print(f"Failed to load image {path}: {e}")
         return None
     image = freibeg_crop_rgb(image)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     # print(f"Image shape new: {image.shape}")
     return Image.fromarray(image)
 
