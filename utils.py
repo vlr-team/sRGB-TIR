@@ -83,7 +83,7 @@ def get_data_loader_list(root, file_list, batch_size, train, new_size=None,
     transform_list = [transforms.RandomHorizontalFlip()] + transform_list if train else transform_list
     transform = transforms.Compose(transform_list)
     dataset = ImageFilelist(root, file_list, transform=transform)
-    loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=train, drop_last=True, num_workers=num_workers, collate_fn=collate_fn)
+    loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=train, drop_last=True, num_workers=num_workers) # , collate_fn=collate_fn)
     return loader
 
 def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
@@ -107,7 +107,7 @@ def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
     else:
         raise ValueError("input_folder path must contain 'trainA' or 'testA' or 'trainB' or 'testB'")
 
-    loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=train, drop_last=True, num_workers=num_workers, collate_fn=collate_fn)
+    loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=train, drop_last=True, num_workers=num_workers) #, collate_fn=collate_fn)
     return loader
 
 def collate_fn(batch):

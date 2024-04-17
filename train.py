@@ -75,6 +75,8 @@ while True:
     # assert len(train_loader_a) == len(train_loader_b), "Data loaders must have the same number of batches"
     for it, (images_a, images_b) in enumerate(zip_longest(train_loader_a, train_loader_b, fillvalue=None)):
         if images_a is None or images_b is None:
+            print("Skiped iteration")
+            max_iter += 1
             continue
 
         images_a, images_b = images_a.cuda().detach(), images_b.cuda().detach()
