@@ -231,7 +231,7 @@ class ContentEncoder(nn.Module):
         self.model = nn.Sequential(*self.model)
         self.output_dim = dim
 
-    #@torch.no_grad()
+    @torch.no_grad()
     def conditional_segmentation(self, x):
         if self.segmentation is not None:
             self.segmentation.eval()
@@ -240,14 +240,13 @@ class ContentEncoder(nn.Module):
             # self.segmentation.eval()
             print("x", x.max(), x.min())
             # unnorm = x*0.5+0.5
-            with torch.no_grad():
-                segmentation_mask = self.segmentation(x)
-                # mask = x
-                # for layer in self.segmentation.modules():
-                #     mask = layer(mask)
-                #     if torch.isnan(mask).any():
-                #         print(f"NaNs detected after {layer}")
-                #         break
+            segmentation_mask = self.segmentation(x)
+            # mask = x
+            # for layer in self.segmentation.modules():
+            #     mask = layer(mask)
+            #     if torch.isnan(mask).any():
+            #         print(f"NaNs detected after {layer}")
+            #         break
             # print("seg", segmentation_mask.max(), segmentation_mask.min())
             # print unique vals
             print(torch.unique(segmentation_mask))
