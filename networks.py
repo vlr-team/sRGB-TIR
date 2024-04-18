@@ -116,6 +116,7 @@ class AdaINGen(nn.Module):
 
     def encode(self, images):
         # encode an image to its content and style codes
+        
         style_fake = self.enc_style(images)
         content = self.enc_content(images)
         return content, style_fake
@@ -208,16 +209,18 @@ class ContentEncoder(nn.Module):
         super(ContentEncoder, self).__init__()
         
         if segmentation:
+            print('Using segmentation')
             from DeepLabV3s import network
-            self.segmentation = network.modeling.__dict__['deeplabv3plus_resnet101'](num_classes=19,output_stride=8)        
-            self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar', 'cpu')['model_state'])
-            self.segmentation.eval()
-            self.segmentation.cuda()
+            self.segmentation = network.modeling.__dict__['deeplabv3plus_resnet101'](num_classes=19,output_stride=8,pretrained_backbone=True)       
+            self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar')['model_state'])
             input_dim += 19
+            self.segmentation.eval()
+            print('Segmentation loaded')
         else:
             self.segmentation = None
 
         self.model = []
+        # print("input_dim: ", input_dim)
         self.model += [Conv2dBlock(input_dim, dim, 7, 1, 3, norm=norm, activation=activ, pad_type=pad_type)]
         # downsampling blocks
         for i in range(n_downsample):
@@ -228,20 +231,44 @@ class ContentEncoder(nn.Module):
         self.model = nn.Sequential(*self.model)
         self.output_dim = dim
 
-    @torch.no_grad()
+    #@torch.no_grad()
     def conditional_segmentation(self, x):
         if self.segmentation is not None:
             self.segmentation.eval()
-            segmentation_mask = self.segmentation(x)
+            # print(torch.unique(x))
+            print(x.dtype)
+            # self.segmentation.eval()
+            print("x", x.max(), x.min())
+            # unnorm = x*0.5+0.5
+            with torch.no_grad():
+                segmentation_mask = self.segmentation(x)
+                # mask = x
+                # for layer in self.segmentation.modules():
+                #     mask = layer(mask)
+                #     if torch.isnan(mask).any():
+                #         print(f"NaNs detected after {layer}")
+                #         break
+            # print("seg", segmentation_mask.max(), segmentation_mask.min())
+            # print unique vals
+            print(torch.unique(segmentation_mask))
+            
             x = torch.cat([x, segmentation_mask], dim=1)
+            # print("After", x.size())
             return x
         else:
             return None
 
     def forward(self, x):
         if self.segmentation:
+            print("Here")
             x = self.conditional_segmentation(x)
-        return self.model(x)
+            #x = self.conditional_segmentation(x)
+            # print("segment")
+            # print(torch.isnan(x).any() or torch.isinf(x).any())
+        x = self.model(x)
+        # print("model")
+        # print(torch.isnan(x).any() or torch.isinf(x).any())
+        return x
 
 class Decoder(nn.Module):
     def __init__(self, n_upsample, n_res, dim, output_dim, res_norm='adain', activ='relu', pad_type='zero'):
