@@ -2,5 +2,5 @@
 **/data
 /outputs
 /logs
-/DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar
+DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar
 outputs_segmentation
