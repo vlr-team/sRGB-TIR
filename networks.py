@@ -214,7 +214,7 @@ class ContentEncoder(nn.Module):
             self.segmentation = network.modeling.__dict__['deeplabv3plus_resnet101'](num_classes=19,output_stride=8,pretrained_backbone=True)       
             self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar')['model_state'])
             input_dim += 19
-            self.segmentation.eval()
+            #self.segmentation.eval()
             print('Segmentation loaded')
         else:
             self.segmentation = None
@@ -234,11 +234,11 @@ class ContentEncoder(nn.Module):
     @torch.no_grad()
     def conditional_segmentation(self, x):
         if self.segmentation is not None:
-            self.segmentation.eval()
+            #self.segmentation.eval()
             # print(torch.unique(x))
-            print(x.dtype)
+            #print(x.dtype)
             # self.segmentation.eval()
-            print("x", x.max(), x.min())
+            #print("x", x.max(), x.min())
             # unnorm = x*0.5+0.5
             segmentation_mask = self.segmentation(x)
             # mask = x
@@ -249,7 +249,7 @@ class ContentEncoder(nn.Module):
             #         break
             # print("seg", segmentation_mask.max(), segmentation_mask.min())
             # print unique vals
-            print(torch.unique(segmentation_mask))
+            #print(torch.unique(segmentation_mask))
             
             x = torch.cat([x, segmentation_mask], dim=1)
             # print("After", x.size())
@@ -259,7 +259,7 @@ class ContentEncoder(nn.Module):
 
     def forward(self, x):
         if self.segmentation:
-            print("Here")
+            # print("Here")
             x = self.conditional_segmentation(x)
             #x = self.conditional_segmentation(x)
             # print("segment")
