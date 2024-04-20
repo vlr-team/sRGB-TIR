@@ -31,7 +31,7 @@ parser.add_argument('--config', type=str, default='configs/tir2rgb_folder.yaml',
 parser.add_argument('--output_path', type=str, default='.', help="outputs path")
 parser.add_argument("--resume", action="store_true")
 parser.add_argument('--trainer', type=str, default='MUNIT', help="MUNIT|UNIT")
-parser.add_argument('--segmentation', type=bool, default=False, help="True|False")
+parser.add_argument('--segmentation', action="store_true")
 opts = parser.parse_args()
 
 torch.cuda.empty_cache()
