@@ -99,7 +99,6 @@ def main(rank: int, world_size: int, total_epochs: int, save_every: int, opts: a
 
             try:
                 images_a, images_b = images_a.to(gpu_id).detach(), images_b.to(gpu_id).detach()
-                # images_a, images_b = images_a.detach(), images_b.detach()
 
                 with Timer("Elapsed time in update: %f"):
                     # Main training code
@@ -162,7 +161,7 @@ if __name__ == '__main__':
 
     config = get_config(opts.config)
 
-    total_epochs = config['max_iter']
+    total_epochs = 3
     save_every = config['snapshot_save_iter']
     world_size = torch.cuda.device_count()
     mp.spawn(main, args=(world_size, total_epochs, save_every, opts), nprocs=world_size)

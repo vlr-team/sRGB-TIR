@@ -22,9 +22,9 @@ conda activate vlr
 python '/ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/inference_batch.py' \
 --config /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/configs/tir2rgb_folder.yaml \
 --input_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/data/testA \
---output_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation/tir2rgb_folder/inference_images_Freiberg_segment \
---checkpoint /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation/tir2rgb_folder/checkpoints/gen_00135000.pt \
---output_path /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation/tir2rgb_folder \
+--output_folder /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation_rgb_only/tir2rgb_folder/inference_images_Freiberg \
+--checkpoint /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation_rgb_only/tir2rgb_folder/checkpoints/gen_00025000.pt \
+--output_path /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/outputs_segmentation_rgb_only/tir2rgb_folder \
 --a2b 1 --seed 1 --num_style 1 \
 --input_folder_ir /ocean/projects/cis220039p/ayanovic/vlr_project/sRGB-TIR/data/testB \
 --segmentation
