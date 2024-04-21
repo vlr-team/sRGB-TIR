@@ -60,8 +60,10 @@ class MsImageDis(nn.Module):
             if self.gan_type == 'lsgan':
                 loss += torch.mean((out0 - 0)**2) + torch.mean((out1 - 1)**2)
             elif self.gan_type == 'nsgan':
-                all0 = Variable(torch.zeros_like(out0.data).cuda(), requires_grad=False)
-                all1 = Variable(torch.ones_like(out1.data).cuda(), requires_grad=False)
+                all0 = Variable(torch.zeros_like(out0.data).cuda(input_fake.device), requires_grad=False)
+                all1 = Variable(torch.ones_like(out1.data).cuda(input_fake.device), requires_grad=False)
+                # all0 = Variable(torch.zeros_like(out0.data), requires_grad=False)
+                # all1 = Variable(torch.ones_like(out1.data), requires_grad=False)
                 loss += torch.mean(F.binary_cross_entropy(F.sigmoid(out0), all0) +
                                    F.binary_cross_entropy(F.sigmoid(out1), all1))
             else:
@@ -76,7 +78,8 @@ class MsImageDis(nn.Module):
             if self.gan_type == 'lsgan':
                 loss += torch.mean((out0 - 1)**2) # LSGAN
             elif self.gan_type == 'nsgan':
-                all1 = Variable(torch.ones_like(out0.data).cuda(), requires_grad=False)
+                all1 = Variable(torch.ones_like(out0.data).cuda(input_fake.device), requires_grad=False)
+                # all1 = Variable(torch.ones_like(out0.data), requires_grad=False)
                 loss += torch.mean(F.binary_cross_entropy(F.sigmoid(out0), all1))
             else:
                 assert 0, "Unsupported GAN type: {}".format(self.gan_type)
@@ -212,7 +215,7 @@ class ContentEncoder(nn.Module):
             print('Using segmentation')
             from DeepLabV3s import network
             self.segmentation = network.modeling.__dict__['deeplabv3plus_resnet101'](num_classes=19,output_stride=8,pretrained_backbone=True)       
-            self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar')['model_state'])
+            self.segmentation.load_state_dict(torch.load('DeepLabV3s/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar', 'cpu')['model_state'])
             input_dim += 19
             #self.segmentation.eval()
             print('Segmentation loaded')
@@ -234,6 +237,7 @@ class ContentEncoder(nn.Module):
     @torch.no_grad()
     def conditional_segmentation(self, x):
         if self.segmentation is not None:
+            self.segmentation.to(x.device)
             #self.segmentation.eval()
             # print(torch.unique(x))
             #print(x.dtype)

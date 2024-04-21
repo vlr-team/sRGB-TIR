@@ -42,7 +42,7 @@ class LogLoss(nn.Module):
         self.log_block = LogEachBlock()
         self.loss = nn.L1Loss()
         if use_gpu:
-            self.log_block.cuda()
+            self.log_block #.cuda()
 
     def __call__(self, input_A, input_B):
         log_A = self.log_block(input_A)

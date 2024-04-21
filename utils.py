@@ -21,6 +21,8 @@ import torch.nn.init as init
 import time
 import torchvision.models as models
 
+from torch.utils.data.distributed import DistributedSampler
+
 # Methods
 # get_all_data_loaders      : primary data loader interface (load trainA, testA, trainB, testB)
 # get_data_loader_list      : list-based data loader
@@ -107,7 +109,10 @@ def get_data_loader_folder(input_folder, batch_size, train, new_size=None,
     else:
         raise ValueError("input_folder path must contain 'trainA' or 'testA' or 'trainB' or 'testB'")
 
-    loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=train, drop_last=True, num_workers=num_workers, collate_fn=collate_fn)
+    if not train:
+        loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=False, drop_last=True, num_workers=num_workers, collate_fn=collate_fn)
+    else:
+        loader = DataLoader(dataset=dataset, batch_size=batch_size, sampler=DistributedSampler(dataset), shuffle=False, drop_last=True, num_workers=num_workers, collate_fn=collate_fn)
     return loader
 
 def collate_fn(batch):
@@ -270,7 +275,7 @@ def vgg_preprocess(batch):
     (r, g, b) = torch.chunk(batch, 3, dim = 1)
     batch = torch.cat((b, g, r), dim = 1) # convert RGB to BGR
     batch = (batch + 1) * 255 * 0.5 # [-1, 1] -> [0, 255]
-    mean = tensortype(batch.data.size()).cuda()
+    mean = tensortype(batch.data.size()).cuda(batch.get_device())
     mean[:, 0, :, :] = 103.939
     mean[:, 1, :, :] = 116.779
     mean[:, 2, :, :] = 123.680
