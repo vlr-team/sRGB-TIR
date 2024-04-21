@@ -140,8 +140,8 @@ class MUNIT_Trainer(nn.Module):
 
     def sample(self, x_a, x_b):
         self.eval()
-        s_a1 = Variable(self.s_a)
-        s_b1 = Variable(self.s_b)
+        s_a1 = Variable(self.s_a).cuda(x_a.device)
+        s_b1 = Variable(self.s_b).cuda(x_a.device)
         s_a2 = Variable(torch.randn(x_a.size(0), self.style_dim, 1, 1).cuda(x_a.device))
         s_b2 = Variable(torch.randn(x_b.size(0), self.style_dim, 1, 1).cuda(x_a.device))
         x_a_recon, x_b_recon, x_ba1, x_ba2, x_ab1, x_ab2 = [], [], [], [], [], []

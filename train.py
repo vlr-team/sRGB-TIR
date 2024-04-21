@@ -72,6 +72,8 @@ def main(rank: int, world_size: int, total_epochs: int, save_every: int, opts: a
     print("Training images A: %d, B: %d. Testing images A: %d, B: %d" % (
         len(train_loader_a.dataset), len(train_loader_b.dataset), len(test_loader_a.dataset), len(test_loader_b.dataset)))
 
+    data_len = len(train_loader_a)
+
     # Setup logger and output folders
     model_name = os.path.splitext(os.path.basename(opts.config))[0]
     train_writer = tensorboardX.SummaryWriter(os.path.join(opts.output_path + "/logs", model_name))
@@ -83,16 +85,18 @@ def main(rank: int, world_size: int, total_epochs: int, save_every: int, opts: a
     iterations = trainer.module.resume(checkpoint_directory, hyperparameters=config) if opts.resume else 0
 
     total_time = 0
+    torch.cuda.synchronize()
     start_time = time.time()
     while True:
         # assert len(train_loader_a) == len(train_loader_b), "Data loaders must have the same number of batches"
         for it, (images_a, images_b) in enumerate(zip_longest(train_loader_a, train_loader_b, fillvalue=None)):
-            train_loader_a.sampler.set_epoch(it)
-            train_loader_b.sampler.set_epoch(it)
+            train_loader_a.sampler.set_epoch(it % data_len)
+            train_loader_b.sampler.set_epoch(it % data_len)
+
             if images_a is None or images_b is None:
                 print("Skiped iteration")
                 continue
-            
+
             try:
                 images_a, images_b = images_a.to(gpu_id).detach(), images_b.to(gpu_id).detach()
                 # images_a, images_b = images_a.detach(), images_b.detach()
@@ -109,26 +113,27 @@ def main(rank: int, world_size: int, total_epochs: int, save_every: int, opts: a
 
             # Dump training stats in log file
             if (iterations + 1) % config['log_iter'] == 0:
+                torch.cuda.synchronize()
                 print("Iteration: %08d/%08d" % (iterations + 1, max_iter))
                 write_loss(iterations, trainer.module, train_writer)
 
             # Write images
             if (iterations + 1) % config['image_save_iter'] == 0:
-                print("Saving images at iteration %d" % (iterations + 1))
                 with torch.no_grad():
                     test_image_outputs = trainer.module.sample(test_display_images_a.to(gpu_id), test_display_images_b.to(gpu_id))
                     train_image_outputs = trainer.module.sample(train_display_images_a.to(gpu_id), train_display_images_b.to(gpu_id))
                 torch.cuda.synchronize()
+                print("Saving images at iteration %d" % (iterations + 1))
                 write_2images(test_image_outputs, display_size, image_directory, 'test_%08d' % (iterations + 1))
                 write_2images(train_image_outputs, display_size, image_directory, 'train_%08d' % (iterations + 1))
                 # HTML
                 write_html(output_directory + "/index.html", iterations + 1, config['image_save_iter'], 'images')
 
             if (iterations + 1) % config['image_display_iter'] == 0:
-                print("Saving display images at iteration %d" % (iterations + 1))
                 with torch.no_grad():
                     image_outputs = trainer.module.sample(train_display_images_a.to(gpu_id), train_display_images_b.to(gpu_id))
                 torch.cuda.synchronize()
+                print("Saving display images at iteration %d" % (iterations + 1))
                 write_2images(image_outputs, display_size, image_directory, 'train_current')
 
             # Save network weights
@@ -139,8 +144,11 @@ def main(rank: int, world_size: int, total_epochs: int, save_every: int, opts: a
             iterations += 1
             if iterations >= max_iter:
                 sys.exit('Finish training')
+            torch.cuda.synchronize()
             total_time = time.time() - start_time
             print("Total time: %02d:%02d:%02d" % (total_time // 3600, total_time % 3600 // 60, total_time % 60))
+
+        destroy_process_group()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
